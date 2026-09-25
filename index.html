@@ -24,6 +24,7 @@
             overflow: hidden;
         }
 
+        /* Responsive frame container */
         .card-perspective {
             position: relative;
             width: 350px;
@@ -36,9 +37,10 @@
             height: 100%;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
             border-radius: 16px;
+            cursor: pointer;
         }
 
-        /* The cover setup as a functional layer */
+        /* Front Cover setup as a clean overlay fade panel */
         .card-front {
             position: absolute;
             top: 0;
@@ -54,6 +56,7 @@
             border-radius: 16px;
             border: 2px solid #4a1238;
             transition: opacity 0.8s ease, transform 0.8s ease;
+            pointer-events: none; /* Allows clicks to pass through instantly without freezing */
         }
 
         .cover-design {
@@ -77,25 +80,18 @@
         .card-front p {
             color: #a37fa1;
             font-size: 0.95rem;
-            margin-bottom: 40px;
         }
 
-        /* Massive, explicit button layer to handle mobile taps flawlessly */
-        .open-btn {
-            background: linear-gradient(45deg, #ff1493, #ff6ebb);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            border-radius: 30px;
+        .tap-indicator {
+            margin-top: 50px;
+            font-size: 0.75rem;
+            color: #ff1493;
             text-transform: uppercase;
             letter-spacing: 2px;
-            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
-            cursor: pointer;
-            z-index: 20;
+            animation: fadeBlink 2s infinite;
         }
 
+        /* Inside Content Base Design Panel */
         .card-inside {
             position: absolute;
             top: 0;
@@ -170,11 +166,10 @@
             font-style: italic;
         }
 
-        /* STATE STYLINGS WHEN OPENED */
+        /* STATE ACTIVATIONS */
         .card-container.open-state .card-front {
             opacity: 0;
             transform: scale(0.9);
-            pointer-events: none;
         }
 
         .card-container.open-state .card-text {
@@ -187,25 +182,28 @@
             0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255,20,147,0.4)); }
             50% { transform: scale(1.12); filter: drop-shadow(0 0 20px rgba(255,20,147,0.8)); }
         }
+
+        @keyframes fadeBlink {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
     <div class="card-perspective">
+        <!-- Interactive container handles touch triggers globally across the whole surface area -->
         <div class="card-container" id="birthdayCard">
             
-            <!-- Front Cover Layer -->
-            <div class="card-front" id="frontCover">
+            <div class="card-front">
                 <div class="cover-design">
                     <div class="heart-pulse">❤️</div>
                     <h2>For Abilyne</h2>
                     <p>A special gift made with love</p>
+                    <div class="tap-indicator">Tap Anywhere to Open</div>
                 </div>
-                <!-- Clean direct button interface for error-free mobile screen clicking -->
-                <button class="open-btn" id="openCardBtn">Open Card</button>
             </div>
 
-            <!-- Inside Presentation Layout -->
             <div class="card-inside">
                 <div class="glow-overlay"></div>
                 <canvas id="treeCanvas"></canvas>
@@ -224,8 +222,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const cardContainer = document.getElementById('birthdayCard');
-            const openBtn = document.getElementById('openCardBtn');
+            const card = document.getElementById('birthdayCard');
             const canvas = document.getElementById('treeCanvas');
             const ctx = canvas.getContext('2d');
 
@@ -303,3 +300,12 @@
                         if (progression >= 1 && b.depth >= 4) {
                             let leafSize = 4 + (b.depth * 0.5);
                             drawHeartIcon(b.endX, b.endY, leafSize, '#ff1493', 4);
+                        }
+                    } else {
+                        itemsRemaining = true;
+                    }
+                });
+
+                heartPetals.forEach(p => {
+                    p.y += p.speedY;
+                    
