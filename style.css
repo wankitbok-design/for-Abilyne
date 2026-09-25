@@ -152,11 +152,11 @@ canvas {
     color: #ff6ebb;
     font-style: italic;
 }
-
-/* ACTIVE OPEN STATES */
+/* UPDATED LAG-FREE MOBILE OPEN STATE */
 .card-container.open {
-    transform: rotateY(-180deg) translateX(-100px);
+    transform: rotateY(-180deg); /* Keeps the card centered on small screens instead of flying left! */
 }
+
 
 .card-container.open .card-text {
     opacity: 1;
