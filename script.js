@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 swingSpeed: 0.02 + Math.random() * 0.02,
                 angle: Math.random() * 360
             };
-            heartPetals.push(Petal);
+            heartPetals.push(petal);
         }
     }
 
