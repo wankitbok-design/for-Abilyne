@@ -9,6 +9,10 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            /* Blocks blue selection box highlights globally on mobile phone screens */
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         body {
@@ -21,7 +25,6 @@
             overflow: hidden;
         }
 
-        /* Outer viewing frame with perspective */
         .card-perspective {
             perspective: 1500px;
             width: 350px;
@@ -37,7 +40,6 @@
             cursor: pointer;
         }
 
-        /* Front Cover opens like a real door swinging left */
         .card-front {
             position: absolute;
             top: 0;
@@ -90,7 +92,6 @@
             animation: fadeBlink 2s infinite;
         }
 
-        /* Inside Base Page (Stays flat underneath) */
         .card-inside {
             position: absolute;
             top: 0;
@@ -168,7 +169,7 @@
 
         /* TRIGGERED OPEN STATES */
         .card-container.open .card-front {
-            transform: rotateY(-140deg); /* Swings open smoothly to the left side */
+            transform: rotateY(-140deg);
         }
 
         .card-container.open .card-text {
@@ -192,7 +193,6 @@
     <div class="card-perspective">
         <div class="card-container" id="birthdayCard">
             
-            <!-- Cover Panel -->
             <div class="card-front">
                 <div class="cover-design">
                     <div class="heart-pulse">❤️</div>
@@ -202,7 +202,6 @@
                 </div>
             </div>
 
-            <!-- Inside Content Panel -->
             <div class="card-inside">
                 <div class="glow-overlay"></div>
                 <canvas id="treeCanvas"></canvas>
@@ -308,3 +307,6 @@
                 heartPetals.forEach(p => {
                     p.y += p.speedY;
                     p.x += Math.sin(p.angle) * 0.5;
+                    p.angle += p.swingSpeed;
+
+                    if (p.y > canvas.height) {
