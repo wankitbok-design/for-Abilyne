@@ -36,7 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function initPetals() {
         heartPetals = [];
         for (let i = 0; i < 20; i++) {
-            自由Petal = {
+             let petal = {
+            
                 x: Math.random() * canvas.width,
                 y: Math.random() * -canvas.height,
                 size: 3 + Math.random() * 4,
