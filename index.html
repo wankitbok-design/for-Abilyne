@@ -4,13 +4,181 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>For Abilyne - Happy Birthday</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #12030e;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            perspective: 1200px;
+        }
+
+        .card-container {
+            position: relative;
+            width: 350px;
+            height: 580px;
+            transform-style: preserve-3d;
+            transform-origin: left center;
+            transition: transform 1.2s cubic-bezier(0.15, 0.85, 0.35, 1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            border-radius: 16px;
+            cursor: pointer;
+        }
+
+        .card-front, .card-inside {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            backface-visibility: hidden;
+            overflow: hidden;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #2b0622 0%, #170312 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+            transform: rotateY(0deg);
+            border: 2px solid #4a1238;
+        }
+
+        .cover-design {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .heart-pulse {
+            font-size: 60px;
+            animation: pulse 1.8s infinite ease-in-out;
+            margin-bottom: 20px;
+        }
+
+        .card-front h2 {
+            color: #ff7ebb;
+            font-size: 2rem;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .card-front p {
+            color: #a37fa1;
+            font-size: 0.95rem;
+        }
+
+        .tap-indicator {
+            margin-top: 60px;
+            font-size: 0.75rem;
+            color: #ff1493;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: fadeBlink 2s infinite;
+        }
+
+        .card-inside {
+            background: #1f0518;
+            transform: rotateY(0deg);
+            z-index: 1;
+            border: 2px solid #54103e;
+        }
+
+        .glow-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(255, 20, 147, 0.25) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(20px);
+            pointer-events: none;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .card-text {
+            position: relative;
+            z-index: 5;
+            padding: 45px 25px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.8s ease;
+            transition-delay: 0.4s;
+        }
+
+        .card-text h1 {
+            font-size: 1.7rem;
+            background: linear-gradient(45deg, #ff99dc, #ff1493);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .card-divider {
+            width: 40px;
+            height: 2px;
+            background: rgba(255, 20, 147, 0.5);
+            margin: 0 auto 20px auto;
+            border-radius: 2px;
+        }
+
+        .card-text .message {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #f7e1ee;
+            margin-bottom: 25px;
+        }
+
+        .signature {
+            display: block;
+            font-size: 1rem;
+            color: #ff6ebb;
+            font-style: italic;
+        }
+
+        .card-container.open {
+            transform: rotateY(-180deg);
+        }
+
+        .card-container.open .card-text {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255,20,147,0.4)); }
+            50% { transform: scale(1.12); filter: drop-shadow(0 0 20px rgba(255,20,147,0.8)); }
+        }
+
+        @keyframes fadeBlink {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+    </style>
 </head>
 <body>
-    <!-- 3D Card Wrapper Container -->
+
     <div class="card-container" id="birthdayCard">
-        
-        <!-- FRONT COVER OF THE CARD -->
         <div class="card-front">
             <div class="cover-design">
                 <div class="heart-pulse">❤️</div>
@@ -20,13 +188,9 @@
             </div>
         </div>
 
-        <!-- INSIDE RIGHT PAGE -->
         <div class="card-inside">
             <div class="glow-overlay"></div>
-            
-            <!-- High performance canvas layer -->
             <canvas id="treeCanvas"></canvas>
-            
             <div class="card-text">
                 <h1>Happy Birthday, Abilyne! 😚</h1>
                 <div class="card-divider"></div>
@@ -36,9 +200,114 @@
                 <span class="signature">Forever Yours, XOXO</span>
             </div>
         </div>
-
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const card = document.getElementById('birthdayCard');
+            const canvas = document.getElementById('treeCanvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = 350;
+            canvas.height = 580;
+
+            let branchData = [];
+            let heartPetals = [];
+            let animationCounter = 0;
+            let animId = null;
+
+            function buildTreeStructure(startX, startY, length, angle, width, depth) {
+                if (depth > 6) return;
+
+                const rad = angle * Math.PI / 180;
+                const endX = startX + length * Math.cos(rad);
+                const endY = startY + length * Math.sin(rad);
+
+                branchData.push({
+                    startX, startY, endX, endY,
+                    width, depth,
+                    growthDelay: depth * 10
+                });
+
+                const nextLength = length * 0.75;
+                const nextWidth = width * 0.7;
+
+                buildTreeStructure(endX, endY, nextLength + Math.random()*10, angle - 22 - Math.random()*10, nextWidth, depth + 1);
+                buildTreeStructure(endX, endY, nextLength + Math.random()*10, angle + 22 + Math.random()*10, nextWidth, depth + 1);
+            }
+
+            function initPetals() {
+                heartPetals = [];
+                for (let i = 0; i < 20; i++) {
+                    let petal = {
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * -canvas.height,
+                        size: 3 + Math.random() * 4,
+                        speedY: 1 + Math.random() * 1.5,
+                        swing: Math.random() * 2,
+                        swingSpeed: 0.02 + Math.random() * 0.02,
+                        angle: Math.random() * 360
+                    };
+                    heartPetals.push(petal);
+                }
+            }
+
+            function renderFrame() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let itemsRemaining = false;
+                animationCounter += 2;
+
+                branchData.forEach(b => {
+                    if (animationCounter > b.growthDelay) {
+                        ctx.beginPath();
+                        ctx.moveTo(b.startX, b.startY);
+
+                        let timeDiff = animationCounter - b.growthDelay;
+                        let progression = Math.min(1, timeDiff / 12);
+                        
+                        let currentX = b.startX + (b.endX - b.startX) * progression;
+                        let currentY = b.startY + (b.endY - b.startY) * progression;
+
+                        ctx.lineTo(currentX, currentY);
+                        ctx.lineWidth = b.width;
+                        
+                        let opacity = 1 - (b.depth * 0.08);
+                        ctx.strokeStyle = "rgba(110,24,73," + opacity + ")";
+                        
+                        ctx.lineCap = 'round';
+                        ctx.stroke();
+
+                        if (progression < 1) itemsRemaining = true;
+
+                        if (progression >= 1 && b.depth >= 4) {
+                            let leafSize = 4 + (b.depth * 0.5);
+                            drawHeartIcon(b.endX, b.endY, leafSize, '#ff1493', 4);
+                        }
+                    } else {
+                        itemsRemaining = true;
+                    }
+                });
+
+                heartPetals.forEach(p => {
+                    p.y += p.speedY;
+                    p.x += Math.sin(p.angle) * 0.5;
+                    p.angle += p.swingSpeed;
+
+                    if (p.y > canvas.height) {
+                        p.y = -10;
+                        p.x = Math.random() * canvas.width;
+                    }
+
+                    drawHeartIcon(p.x, p.y, p.size, 'rgba(255, 105, 180, 0.6)', 0);
+                });
+
+                if (itemsRemaining || card.classList.contains('open')) {
+                    animId = requestAnimationFrame(renderFrame);
+                }
+            }
+
+            function drawHeartIcon(x, y, size, color, blur) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.translate(x, y);
+        
