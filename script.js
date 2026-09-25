@@ -27,33 +27,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextLength = length * 0.75;
         const nextWidth = width * 0.7;
 
-        buildTreeStructure(
-            endX, endY, 
-            nextLength + Math.random()*10, 
-            angle - 22 - Math.random()*10, 
-            nextWidth, depth + 1
-        );
-        buildTreeStructure(
-            endX, endY, 
-            nextLength + Math.random()*10, 
-            angle + 22 + Math.random()*10, 
-            nextWidth, depth + 1
-        );
+        buildTreeStructure(endX, endY, nextLength + Math.random()*10, angle - 22 - Math.random()*10, nextWidth, depth + 1);
+        buildTreeStructure(endX, endY, nextLength + Math.random()*10, angle + 22 + Math.random()*10, nextWidth, depth + 1);
     }
 
     function initPetals() {
         heartPetals = [];
         for (let i = 0; i < 20; i++) {
-            let petal = {
+            heartPetals.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * -canvas.height,
                 size: 3 + Math.random() * 4,
                 speedY: 1 + Math.random() * 1.5,
-                swing: Math.random() * 2,
                 swingSpeed: 0.02 + Math.random() * 0.02,
                 angle: Math.random() * 360
-            };
-            heartPetals.push(petal);
+            });
         }
     }
 
@@ -78,15 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 let opacity = 1 - (b.depth * 0.08);
                 ctx.strokeStyle = "rgba(110,24,73," + opacity + ")";
-                
-                ctx.lineCap = 'round';
                 ctx.stroke();
 
                 if (progression < 1) itemsRemaining = true;
 
                 if (progression >= 1 && b.depth >= 4) {
-                    let leafSize = 4 + (b.depth * 0.5);
-                    drawHeartIcon(b.endX, b.endY, leafSize, '#ff1493', 4);
+                    drawHeartIcon(b.endX, b.endY, 4 + (b.depth * 0.5), '#ff1493', 4);
                 }
             } else {
                 itemsRemaining = true;
@@ -106,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
             drawHeartIcon(p.x, p.y, p.size, 'rgba(255, 105, 180, 0.6)', 0);
         });
 
-        if (itemsRemaining || card.classList.contains('open')) {
+        if (itemsRemaining || card.classList.contains('open-state')) {
             animId = requestAnimationFrame(renderFrame);
         }
     }
@@ -128,10 +113,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.restore();
     }
 
-    card.addEventListener('click', () => {
-        card.classList.toggle('open');
-
-        if (card.classList.contains('open')) {
+    // High performance interaction listener handles desktop + mobile touch triggers flawlessly
+    function toggleCardState(e) {
+        e.preventDefault();
+        
+        if (!card.classList.contains('open-state')) {
+            card.classList.add('open-state');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             cancelAnimationFrame(animId);
             branchData = [];
@@ -139,10 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             buildTreeStructure(175, 540, 80, -90, 7, 0);
             initPetals();
-            setTimeout(renderFrame, 350); 
+            setTimeout(renderFrame, 100);
         } else {
+            card.classList.remove('open-state');
             cancelAnimationFrame(animId);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
-    });
+    }
+
+    card.addEventListener('click', toggleCardState);
+    card.addEventListener('touchstart', toggleCardState, { passive: false });
 });
