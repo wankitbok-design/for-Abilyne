@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let animationCounter = 0;
     let animId = null;
 
-    // 1. Instantly pre-calculate structural branch positions to avoid rendering calculations mid-frame
     function buildTreeStructure(startX, startY, length, angle, width, depth) {
         if (depth > 6) return;
 
@@ -28,16 +27,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextLength = length * 0.75;
         const nextWidth = width * 0.7;
 
-        buildTreeStructure(endX, endY, nextLength + Math.random()*10, angle - 22 - Math.random()*10, nextWidth, depth + 1);
-        buildTreeStructure(endX, endY, nextLength + Math.random()*10, angle + 22 + Math.random()*10, nextWidth, depth + 1);
+        buildTreeStructure(
+            endX, endY, 
+            nextLength + Math.random()*10, 
+            angle - 22 - Math.random()*10, 
+            nextWidth, depth + 1
+        );
+        buildTreeStructure(
+            endX, endY, 
+            nextLength + Math.random()*10, 
+            angle + 22 + Math.random()*10, 
+            nextWidth, depth + 1
+        );
     }
 
-    // Initialize an array of lightweight floating heart particles
     function initPetals() {
         heartPetals = [];
         for (let i = 0; i < 20; i++) {
-             let petal = {
-            
+            let petal = {
                 x: Math.random() * canvas.width,
                 y: Math.random() * -canvas.height,
                 size: 3 + Math.random() * 4,
@@ -50,39 +57,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 2. High-performance progressive math paint loop
     function renderFrame() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         let itemsRemaining = false;
         animationCounter += 2;
 
-        // Draw the static/growing branches first
         branchData.forEach(b => {
             if (animationCounter > b.growthDelay) {
                 ctx.beginPath();
                 ctx.moveTo(b.startX, b.startY);
 
-                const progression = Math.min(1, (animationCounter - b.growthDelay) / 12);
-                const currentX = b.startX + (b.endX - b.startX) * progression;
-                const currentY = b.startY + (b.endY - b.startY) * progression;
+                let timeDiff = animationCounter - b.growthDelay;
+                let progression = Math.min(1, timeDiff / 12);
+                
+                let currentX = b.startX + (b.endX - b.startX) * progression;
+                let currentY = b.startY + (b.endY - b.startY) * progression;
 
                 ctx.lineTo(currentX, currentY);
                 ctx.lineWidth = b.width;
-                ctx.strokeStyle = `rgba(110, 24, 73, ${1 - (b.depth * 0.08)})`;
+                
+                let opacity = 1 - (b.depth * 0.08);
+                ctx.strokeStyle = "rgba(110,24,73," + opacity + ")";
+                
                 ctx.lineCap = 'round';
                 ctx.stroke();
 
                 if (progression < 1) itemsRemaining = true;
 
                 if (progression >= 1 && b.depth >= 4) {
-                    drawHeartIcon(b.endX, b.endY, 4 + (b.depth * 0.5), '#ff1493', 4);
+                    let leafSize = 4 + (b.depth * 0.5);
+                    drawHeartIcon(b.endX, b.endY, leafSize, '#ff1493', 4);
                 }
             } else {
                 itemsRemaining = true;
             }
         });
 
-        // Draw and update falling heart petals
         heartPetals.forEach(p => {
             p.y += p.speedY;
             p.x += Math.sin(p.angle) * 0.5;
@@ -96,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
             drawHeartIcon(p.x, p.y, p.size, 'rgba(255, 105, 180, 0.6)', 0);
         });
 
-        // Continue drawing loop as long as tree grows or card is open
         if (itemsRemaining || card.classList.contains('open')) {
             animId = requestAnimationFrame(renderFrame);
         }
@@ -119,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.restore();
     }
 
-    // Interactive card flip event click listener
     card.addEventListener('click', () => {
         card.classList.toggle('open');
 
