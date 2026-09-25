@@ -1,0 +1,175 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #12030e;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    perspective: 1200px;
+}
+
+/* Card Container setup as a 3D book object */
+.card-container {
+    position: relative;
+    width: 350px;
+    height: 580px;
+    transform-style: preserve-3d;
+    transform-origin: left center;
+    transition: transform 1.2s cubic-bezier(0.15, 0.85, 0.35, 1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    border-radius: 16px;
+    cursor: pointer;
+}
+
+/* Base rules for both page panels */
+.card-front, .card-inside {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    backface-visibility: hidden;
+    overflow: hidden;
+}
+
+/* Front Cover Styling */
+.card-front {
+    background: linear-gradient(135deg, #2b0622 0%, #170312 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    transform: rotateY(0deg);
+    border: 2px solid #4a1238;
+}
+
+.cover-design {
+    text-align: center;
+    padding: 20px;
+}
+
+.heart-pulse {
+    font-size: 60px;
+    animation: pulse 1.8s infinite ease-in-out;
+    margin-bottom: 20px;
+}
+
+.card-front h2 {
+    color: #ff7ebb;
+    font-size: 2rem;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.card-front p {
+    color: #a37fa1;
+    font-size: 0.95rem;
+}
+
+.tap-indicator {
+    margin-top: 60px;
+    font-size: 0.75rem;
+    color: #ff1493;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: fadeBlink 2s infinite;
+}
+
+/* Inside Page Design Layout */
+.card-inside {
+    background: #1f0518;
+    transform: rotateY(0deg);
+    z-index: 1;
+    border: 2px solid #54103e;
+}
+
+.glow-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(255, 20, 147, 0.25) 0%, rgba(0,0,0,0) 70%);
+    filter: blur(20px);
+    pointer-events: none;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.card-text {
+    position: relative;
+    z-index: 5;
+    padding: 45px 25px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: all 0.8s ease;
+    transition-delay: 0.4s;
+}
+
+.card-text h1 {
+    font-size: 1.7rem;
+    background: linear-gradient(45deg, #ff99dc, #ff1493);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.card-divider {
+    width: 40px;
+    height: 2px;
+    background: rgba(255, 20, 147, 0.5);
+    margin: 0 auto 20px auto;
+    border-radius: 2px;
+}
+
+.card-text .message {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #f7e1ee;
+    margin-bottom: 25px;
+}
+
+.signature {
+    display: block;
+    font-size: 1rem;
+    color: #ff6ebb;
+    font-style: italic;
+}
+
+/* ACTIVE OPEN STATES */
+.card-container.open {
+    transform: rotateY(-180deg) translateX(-100px);
+}
+
+.card-container.open .card-text {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Light Animations */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255,20,147,0.4)); }
+    50% { transform: scale(1.12); filter: drop-shadow(0 0 20px rgba(255,20,147,0.8)); }
+}
+
+@keyframes fadeBlink {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
